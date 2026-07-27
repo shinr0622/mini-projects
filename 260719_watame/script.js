@@ -18,19 +18,6 @@ function checkStock() {
     return;
   }
 
-
-  let orderQty = Number(qtyInput.value);
-  if (orderQty > currentStock) {
-    buyBtn.disabled = true;
-    buyBtn.textContent = "庫存不足";
-
-    buyBtn.classList.add("disabled-btn");
-  } else {
-    buyBtn.disabled = false;
-    buyBtn.textContent = "立刻下單";
-
-    buyBtn.classList.remove("disabled-btn");
-  }
 }
 
 
