@@ -70,3 +70,21 @@ h1 {
 .add-cart-btn:hover {
    background-color: #ff4d88;
 }
+
+#cart-drawer {
+  margin-top: 50px;
+  padding: 20px;
+  background-color: #fff;
+  border: 3px solid #ff6699;
+  border-radius: 15px;
+ }
+ 
+ .cart-title{
+  color: #ff6699;
+  text-align: center;
+ }
+
+ .cart-name{
+  text-align: center;
+  color: #999;
+ }
