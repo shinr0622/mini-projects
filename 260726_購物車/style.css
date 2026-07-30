@@ -20,7 +20,7 @@ h1 {
     gap:20px;
     padding:20px;
 }
-
+/*下面是js 貨架商品卡片化妝 */
 .product-card {
     border: 2px dashed #ff7fc5;
     padding: 15px;
@@ -32,8 +32,8 @@ h1 {
 
 .product-img {
     width:100%;
-    aspect-ratio: 1 / 1;
-    object-fit: contain;
+    aspect-ratio: 1 / 1;/* 寬高相同比例*/
+    object-fit: contain;/* 包含 看到全部照片 留白*/
     border-radius: 10px;
 }
 
@@ -67,16 +67,55 @@ h1 {
   margin-top:10px;
 }
 
-.add-cart-btn:hover {
+.add-cart-btn:hover {/* 按鈕懸停變色*/
    background-color: #ff4d88;
 }
 
+/* ===========================================================================*/
+
+
+/* 浮動按鈕 固定在右上角*/
+#cart-toggle-btn {
+  position: fixed; /* 釘死在畫面上，滾動也不會動 */
+  top: 20px;
+  right: 20px;
+  z-index: 100;/* 確保它在最上層，不會被圖片擋住 */
+  /* 下面是美化用 */
+  background-color: #ff6699;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#cart-toggle-btn:hover { /* 這是游標在按鈕「懸停」時的特效 */
+  background-color: #ff4d88;
+  transform: scale(1.1);/*如果你想加點動畫 （這會讓按鈕稍微放大） */
+  }
+
+  /* 幫抽屜加上隱形斗篷的功能 */
+.hidden-drawer {
+  display: none !important;
+}
+
+
+
+/* 下面是 html 抽屜列表化妝*/
 #cart-drawer {
-  margin-top: 50px;
-  padding: 20px;
-  background-color: #fff;
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  width: 350px;  /* 限制抽屜寬度，才不會佔滿畫面 */
+  background-color: #fffcfd;
+  z-index: 99;       
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* x軸y軸渲染程度 加點陰影更立體 */
+  
+  /* 保留你原本的設定 */
   border: 3px solid #ff6699;
   border-radius: 15px;
+  padding: 20px;
  }
  
  .cart-title{
@@ -88,3 +127,28 @@ h1 {
   text-align: center;
   color: #999;
  }
+
+/* 下面是 js 推車商品化妝*/
+.cartItemsContainer {
+  border-bottom: 1px dashed #ff6699; 
+  padding: 10px 0; 
+  margin-bottom: 10px;
+}
+
+
+.cartItemsContainer-name{
+  color: #e4a810; 
+  margin: 0 0 5px 0;
+  
+}
+
+.cartItemsContainer-Subtotal{
+  margin: 0; 
+  color: #666; 
+  font-size: 16px;
+}
+
+.cartItemsContainer-quantity{
+  color:#ff6699; 
+  font-weight:bold;
+}

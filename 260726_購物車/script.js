@@ -53,8 +53,8 @@ addCartBtns.forEach(function (btn) {
     let cartItemIndex = cart.findIndex(function (cartItem) {
       //派出findIndex 機器人去 JS 的「推車陣列 (cart)」裡面巡視
       return cartItem.id === Number(btn.dataset.id);
-      //機器人拿著 點擊的按鈕字串(轉換後)紙條，對比推車內是否有 相同的包裹id
-      //注意:cartItemIndex他回報的是車位號碼，不是id
+      //機器人拿著 點擊的按鈕字串(轉換後)紙條，檢查推車內是否  已有相同的包裹id
+      //注意:cartItemIndex他回報的是車位號碼cart[0]，不是id，return 遞交報告 (回傳值)
     });
     //根據  findIndex 機器人回報 決定理貨方式:
     if (cartItemIndex === -1) {
@@ -64,7 +64,7 @@ addCartBtns.forEach(function (btn) {
         return item.id === Number(btn.dataset.id);
         //嚴格比對 把HTML 貼紙字串(btn.dataset.id)，用number()轉換成純數字
         //和大棧板上的純數字(id)做比對，注意 和貼到html{item.id}"是不同的
-        // 找到箱子的數字id 立刻停止比對
+        // return 遞交報告 (回傳值)
 
         //注意如果改成name不需要number() 本身就是string文字字串
       });
@@ -80,7 +80,7 @@ addCartBtns.forEach(function (btn) {
         name: orderProduct.name,
         price: orderProduct.price,
         img: orderProduct.img,
-        quantity: 1 //貼上這個客人專屬的「數量：1」貼紙！
+        quantity: 1, //貼上這個客人專屬的「數量：1」貼紙！
       };
 
       cart.push(newCartItem);
@@ -89,10 +89,52 @@ addCartBtns.forEach(function (btn) {
       // 狀況 B：機器人回報的不是 -1 (代表推車裡已經有這個商品了，它回報的是cart[車位號碼])
       // 我們直接走到那個車位 (cart[cartItemIndex])，不需要推新的包裹進去，只要把原有的數量 +1
       cart[cartItemIndex].quantity += 1;
-      console.log( `🔄 重複購買！【${cart[cartItemIndex].name}】的數量變成了 ${cart[cartItemIndex].quantity} 個！`,
+      console.log(
+        `🔄 重複購買！【${cart[cartItemIndex].name}】的數量變成了 ${cart[cartItemIndex].quantity} 個！`,
       );
     }
-
+  
     console.log("目前的購物車內容:", cart); // 查看目前購物車陣列長怎樣
+    renderCart();
+    //  每次點擊按鈕、裝完車之後，立刻呼叫渲染機器人更新畫面！
+  });// 這是 click 監聽器的結尾
+});// 這是 forEach 迴圈的結尾
+
+//1.建立一個負責畫面更新的機器人
+function renderCart() {
+  const cartItemsContainer = document.querySelector("#cart-items");
+  //抓取html車車位置
+  cartItemsContainer.innerHTML = "";
+  //2.先清空公佈欄，避免洗頻洗一排 反覆列印
+  //3.檢查車內是否有東西
+  if (cart.length === 0) {
+    //.length 用來量「陣列裡面有幾個東西」。如果cart長度是 0，代表沒東西
+    cartItemsContainer.innerHTML = `<p class="cart-name">目前車車裡還沒有東西喔!</p>`;
+    return;//如果沒東西 打卡下班 省流量
+  }
+  //4.車內有東西，派出forEach 機器人，去巡視陣列cart.push(newCartItem)裝車好的商品
+  cart.forEach(function (item) {
+    let Subtotal = item.price * item.quantity;
+    //順便算一下總價格
+    cartItemsContainer.innerHTML += `
+    <div class="cartItemsContainer">
+    <h4 class="cartItemsContainer-name">${item.name}</h4>
+     <p class="cartItemsContainer-Subtotal">
+       單價: $${item.price} | 
+       數量: <span class="cartItemsContainer-quantity">${item.quantity}</span> | 小計: $${Subtotal}
+     </p>
+    </div>
+    `;
   });
+}
+
+//造一個 按鈕切換機器人
+const cartToggleBtn = document.querySelector("#cart-toggle-btn");
+const cartDrawer = document.querySelector("#cart-drawer");
+
+cartDrawer.classList.add("hidden-drawer");
+// 先幫抽屜預設穿上隱形斗篷 (一進網頁時是收起來的)
+cartToggleBtn.addEventListener("click", function(){
+  // toggle 的意思是：如果沒有就加上，如果已經有就拿掉！
+  cartDrawer.classList.toggle("hidden-drawer")
 });
