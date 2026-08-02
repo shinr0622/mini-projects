@@ -39,8 +39,11 @@ product.forEach(function (item) {
 `; //data-id="${item.id}"幫按鈕貼上隱形條碼貼紙
 });
 
-let cart = [];
-//推出一台空空的購物車
+let cart = JSON.parse(localStorage.getItem("shibaCart")) || [];
+//「左邊優先，左邊沒東西才拿右邊當備胎！」
+renderCart();
+//有拿到東西，先渲染貼過去。
+
 const addCartBtns = document.querySelectorAll(".add-cart-btn");
 //定位 按鈕的名牌，一定要寫在生成卡片迴圈後面
 // 注意選擇器的All，是一次抓到全部大袋子按鈕 下面要寫一個個拿出來才行
@@ -93,12 +96,16 @@ addCartBtns.forEach(function (btn) {
         `🔄 重複購買！【${cart[cartItemIndex].name}】的數量變成了 ${cart[cartItemIndex].quantity} 個！`,
       );
     }
-  
+
     console.log("目前的購物車內容:", cart); // 查看目前購物車陣列長怎樣
+
     renderCart();
     //  每次點擊按鈕、裝完車之後，立刻呼叫渲染機器人更新畫面！
-  });// 這是 click 監聽器的結尾
-});// 這是 forEach 迴圈的結尾
+    localStorage.setItem("shibaCart", JSON.stringify(cart));
+    //為啥放這裡?? 因為每次渲染更新車子後，要立刻打包放進置物櫃。
+
+  }); // 這是 click 監聽器的結尾
+}); // 這是 forEach 迴圈的結尾
 
 //1.建立一個負責畫面更新的機器人
 function renderCart() {
@@ -110,7 +117,7 @@ function renderCart() {
   if (cart.length === 0) {
     //.length 用來量「陣列裡面有幾個東西」。如果cart長度是 0，代表沒東西
     cartItemsContainer.innerHTML = `<p class="cart-name">目前車車裡還沒有東西喔!</p>`;
-    return;//如果沒東西 打卡下班 省流量
+    return; //如果沒東西 打卡下班 省流量
   }
   //4.車內有東西，派出forEach 機器人，去巡視陣列cart.push(newCartItem)裝車好的商品
   cart.forEach(function (item) {
@@ -121,20 +128,70 @@ function renderCart() {
     <h4 class="cartItemsContainer-name">${item.name}</h4>
      <p class="cartItemsContainer-Subtotal">
        單價: $${item.price} | 
-       數量: <span class="cartItemsContainer-quantity">${item.quantity}</span> | 小計: $${Subtotal}
+       數量: 
+       
+       <button class="qty-btn" data-id="${item.id}" data-action="minus"> - </button>
+       
+       <span class="cartItemsContainer-quantity">${item.quantity}</span> 
+       
+       <button class="qty-btn" data-id="${item.id}" data-action="plus"> + </button>
+
+       | 小計: $${Subtotal}
      </p>
     </div>
     `;
   });
 }
 
-//造一個 按鈕切換機器人
+//造一個 右上角購物按鈕切換機器人
 const cartToggleBtn = document.querySelector("#cart-toggle-btn");
 const cartDrawer = document.querySelector("#cart-drawer");
 
 cartDrawer.classList.add("hidden-drawer");
 // 先幫抽屜預設穿上隱形斗篷 (一進網頁時是收起來的)
-cartToggleBtn.addEventListener("click", function(){
+cartToggleBtn.addEventListener("click", function () {
   // toggle 的意思是：如果沒有就加上，如果已經有就拿掉！
-  cartDrawer.classList.toggle("hidden-drawer")
+  cartDrawer.classList.toggle("hidden-drawer");
+});
+
+// 事件委派 (倉管主管統一管理點擊)
+const cartContainer = document.querySelector("#cart-items");
+//抓取購物物品列表
+cartContainer.addEventListener("click", function (e) {
+  // e (event) 就是案件報告書。而 e.target 就是「客人滑鼠確切戳到的那個東西」。
+  //上下兩句白話文「主管看著報告書裡的肇事者，檢查他身上的制服清單，清單裡『有沒有包含』加減按鈕專屬的 qty-btn 制服？如果有，才准許放行執行加減動作！」
+  if (e.target.classList.contains("qty-btn")) {
+    //contains包含，JavaScript 內建的一個檢查工具，
+    // 物品身上穿著的「所有制服清單 (class)」
+    let productId = Number(e.target.dataset.id);
+    //隱形貼紙先轉換好，等等用來確認車位號
+    let action = e.target.dataset.action;
+    //這句是用來判斷動作 點的是"plus" 還是 "minus"
+
+    let itemIndex = cart.findIndex(function(item){
+      return item.id === productId;
+    });//找到客人點擊的按鈕(html)在陣列車車的哪個車位?
+
+    if (action === "plus"){  //動作判別
+      cart[itemIndex].quantity += 1;  //數量判別
+      console.log(`加號被點了！現在數量是 ${cart[itemIndex].quantity}`);
+
+    } else if (action === "minus") {
+      cart[itemIndex].quantity -= 1;
+      console.log(`減號被點了！現在數量是 ${cart[itemIndex].quantity}`);
+
+      if (cart[itemIndex].quantity === 0) {
+      //如果數量被減到零
+        cart.splice(itemIndex,1);
+      //splice(要刪除的車位號碼, 要刪掉幾個)
+        console.log("數量歸零，商品已從推車移除！");
+      }
+    }
+  localStorage.setItem("shibaCart", JSON.stringify(cart));
+  //客人修改好後，要再儲存一次
+  renderCart();
+  //渲染貼過去
+
+
+  }
 });
