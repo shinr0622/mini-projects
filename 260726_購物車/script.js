@@ -119,10 +119,15 @@ function renderCart() {
     cartItemsContainer.innerHTML = `<p class="cart-name">目前車車裡還沒有東西喔!</p>`;
     return; //如果沒東西 打卡下班 省流量
   }
+  
+  let total = 0;//算總金額用，結帳前先歸零
+
   //4.車內有東西，派出forEach 機器人，去巡視陣列cart.push(newCartItem)裝車好的商品
   cart.forEach(function (item) {
+    
     let Subtotal = item.price * item.quantity;
-    //順便算一下總價格
+    total += Subtotal;//(等同於 total = total + Subtotal) 不停的累加小計進去
+    //順便算一下小計
     cartItemsContainer.innerHTML += `
     <div class="cartItemsContainer">
     <h4 class="cartItemsContainer-name">${item.name}</h4>
@@ -140,7 +145,17 @@ function renderCart() {
      </p>
     </div>
     `;
-  });
+  });//這是 forEach 迴圈的結尾
+
+  //結帳總金額 不可以放forEach 迴圈裏面，否則他會每貼一次商品 就跟著印一次總金額
+     cartItemsContainer.innerHTML += `
+    <div class="cart-total-box" style="margin-top: 20px;  padding-top: 10px;">
+      <h3 style="color: #ff6b6b;">💰 總計金額：$${total}</h3>
+      <!-- 順便偷偷放一顆結帳按鈕，為跨頁做準備 -->
+      <button id="checkout-btn">前往結帳</button> 
+    </div>
+
+`;
 }
 
 //造一個 右上角購物按鈕切換機器人
@@ -162,7 +177,7 @@ cartContainer.addEventListener("click", function (e) {
   //上下兩句白話文「主管看著報告書裡的肇事者，檢查他身上的制服清單，清單裡『有沒有包含』加減按鈕專屬的 qty-btn 制服？如果有，才准許放行執行加減動作！」
   if (e.target.classList.contains("qty-btn")) {
     //contains包含，JavaScript 內建的一個檢查工具，
-    // 物品身上穿著的「所有制服清單 (class)」
+    // 報告書內，有沒有包含目標點擊穿著「制服清單 (class)的qty-btn」
     let productId = Number(e.target.dataset.id);
     //隱形貼紙先轉換好，等等用來確認車位號
     let action = e.target.dataset.action;
