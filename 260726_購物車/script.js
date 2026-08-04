@@ -103,7 +103,6 @@ addCartBtns.forEach(function (btn) {
     //  每次點擊按鈕、裝完車之後，立刻呼叫渲染機器人更新畫面！
     localStorage.setItem("shibaCart", JSON.stringify(cart));
     //為啥放這裡?? 因為每次渲染更新車子後，要立刻打包放進置物櫃。
-
   }); // 這是 click 監聽器的結尾
 }); // 這是 forEach 迴圈的結尾
 
@@ -119,14 +118,13 @@ function renderCart() {
     cartItemsContainer.innerHTML = `<p class="cart-name">目前車車裡還沒有東西喔!</p>`;
     return; //如果沒東西 打卡下班 省流量
   }
-  
-  let total = 0;//算總金額用，結帳前先歸零
+
+  let total = 0; //算總金額用，結帳前先歸零
 
   //4.車內有東西，派出forEach 機器人，去巡視陣列cart.push(newCartItem)裝車好的商品
   cart.forEach(function (item) {
-    
     let Subtotal = item.price * item.quantity;
-    total += Subtotal;//(等同於 total = total + Subtotal) 不停的累加小計進去
+    total += Subtotal; //(等同於 total = total + Subtotal) 不停的累加小計進去
     //順便算一下小計
     cartItemsContainer.innerHTML += `
     <div class="cartItemsContainer">
@@ -145,10 +143,10 @@ function renderCart() {
      </p>
     </div>
     `;
-  });//這是 forEach 迴圈的結尾
+  }); //這是 forEach 迴圈的結尾
 
   //結帳總金額 不可以放forEach 迴圈裏面，否則他會每貼一次商品 就跟著印一次總金額
-     cartItemsContainer.innerHTML += `
+  cartItemsContainer.innerHTML += `
     <div class="cart-total-box" style="margin-top: 20px;  padding-top: 10px;">
       <h3 style="color: #ff6b6b;">💰 總計金額：$${total}</h3>
       <!-- 順便偷偷放一顆結帳按鈕，為跨頁做準備 -->
@@ -183,30 +181,41 @@ cartContainer.addEventListener("click", function (e) {
     let action = e.target.dataset.action;
     //這句是用來判斷動作 點的是"plus" 還是 "minus"
 
-    let itemIndex = cart.findIndex(function(item){
+    let itemIndex = cart.findIndex(function (item) {
       return item.id === productId;
-    });//找到客人點擊的按鈕(html)在陣列車車的哪個車位?
+    }); //找到客人點擊的按鈕(html)在陣列車車的哪個車位?
 
-    if (action === "plus"){  //動作判別
-      cart[itemIndex].quantity += 1;  //數量判別
+    if (action === "plus") {
+      //動作判別
+      cart[itemIndex].quantity += 1; //對象.數量判別
       console.log(`加號被點了！現在數量是 ${cart[itemIndex].quantity}`);
-
     } else if (action === "minus") {
       cart[itemIndex].quantity -= 1;
       console.log(`減號被點了！現在數量是 ${cart[itemIndex].quantity}`);
 
       if (cart[itemIndex].quantity === 0) {
-      //如果數量被減到零
-        cart.splice(itemIndex,1);
-      //splice(要刪除的車位號碼, 要刪掉幾個)
+        //如果數量被減到零
+        cart.splice(itemIndex, 1);
+        //splice(要刪除的車位號碼, 要刪掉幾個)
         console.log("數量歸零，商品已從推車移除！");
       }
     }
-  localStorage.setItem("shibaCart", JSON.stringify(cart));
-  //客人修改好後，要再儲存一次
-  renderCart();
-  //渲染貼過去
+    localStorage.setItem("shibaCart", JSON.stringify(cart));
+    //客人修改好後，要再儲存一次
+    renderCart();
+    //渲染貼過去
+  }
 
+  //注意不要放到上面加減裏面，下面是跳轉用的
+  if (e.target.id === "checkout-btn") {
+    //嚴格比對 客人點擊的名牌 是不是等於checkout-btn
+    if (cart.length === 0) {
+      alert("你的購物車還是空的喔!先去挑選一些好東西吧!");
+      return;//防呆用 判定如果是空的 不給結帳
+    }
 
+    console.log("準備切換頁面，貨物已用 localStorage 綁好!");
+    //發動跳轉魔法!
+    window.location.href = "checkout.html";
   }
 });
