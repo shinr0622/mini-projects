@@ -99,7 +99,7 @@ product.forEach(function (item) {
   //去product大棧板裡面，依序把每個箱子(物品) 放進商品貨架 最裡面
   shopShelf.innerHTML += `
     <div class="product-card">
-      <img src="${item.img}" alt="${item.name}" class="product-img" >
+      <img src="images/${item.img}" alt="${item.name}" class="product-img" >
       <h3 class="product-title">${item.name}</h3>
       
       <p class="product-price">價格：$${item.price}</p>
