@@ -106,15 +106,24 @@ const product = [
 ];
 
 
-//暫時給data代名詞，指所有的大棧板(搜尋結果)
+//暫時給data代名詞，可套用於大棧板(包含篩選的小棧板)不會寫死
+//建立 渲染主畫面商品機器人
 function renderShop(data) {
   const shopShelf = document.querySelector("#shop-shelf");
 
-  //篩選會反覆貼上 要先清空一次
-  shopShelf.innerHTML = "";
+  shopShelf.innerHTML = "";//篩選會反覆貼上 要先清空一次
 
-  // 針對主管交給它的 data (陣列) 進行巡視並上架
-  data.forEach(function (item) {
+  if (data.length === 0) { //篩選輸入框防呆 寫在這
+    shopShelf.innerHTML =`
+    <p style="text-align:center; color:#999; font-size:18px; width:100%">
+     找不到此物品😭請重新輸入，或點擊「全部商品」返回。
+    `;
+    return;
+  }
+
+
+  
+  data.forEach(function (item) {// 針對主管交給它的 data (陣列) 進行巡視並上架
     shopShelf.innerHTML += `
     <div class="product-card">
       <img src="images/${item.img}" alt="${item.name}" class="product-img" >
@@ -204,15 +213,12 @@ renderCart();// 購物車渲染畫面更新
 
 
 
-//1.建立一個負責畫面更新的機器人
+//1.建立 購物車更新的機器人
 function renderCart() {
   const cartItemsContainer = document.querySelector("#cart-items");
-  //抓取html車車位置
   cartItemsContainer.innerHTML = "";
-  //2.先清空公佈欄，避免洗頻洗一排 反覆列印
-  //3.檢查車內是否有東西
+
   if (cart.length === 0) {
-    //.length 用來量「陣列裡面有幾個東西」。如果cart長度是 0，代表沒東西
     cartItemsContainer.innerHTML = `<p class="cart-name">目前車車裡還沒有東西喔!</p>`;
     return; 
   }
@@ -315,5 +321,102 @@ cartContainer.addEventListener("click", function (e) {
     console.log("準備切換頁面，貨物已用 localStorage 綁好!");
     //發動跳轉魔法!
     window.location.href = "checkout.html";
+  }
+});
+
+// ==========================================
+// 分類按鈕篩選功能
+// ==========================================
+
+//抓取 控制台位置
+
+//攔截 綁定 監聽點擊事件
+
+//檢查 客人點擊有無包含該制服按鈕
+
+//判斷 路口 戳的是哪種標籤
+
+//渲染 畫面
+
+const filterConsole = document.querySelector ("#filter-console");
+
+filterConsole.addEventListener("click",function(e){
+
+  if (e.target.classList.contains("filter-btn")) {
+  
+    let selectedCategory = e.target.dataset.category;
+    
+    //直接比對大棧板 一定要寫，因為Category沒有寫all無法自動分類
+    if (selectedCategory === "all") {
+      renderShop(product);
+    } else {
+      
+      //篩選按鈕不要一個個if比對 打開自動影印分類機 自動分類 劃分小棧板
+      let filteredProducts = product.filter(function(item){
+        return item.category === selectedCategory;
+
+      });
+      //「全新的分類小棧板」，交給萬能堆高機去印畫面！
+      renderShop (filteredProducts); 
+    }
+  }
+});
+
+// ==========================================
+// 搜尋框關鍵字魔法
+// ==========================================
+
+//抓取 輸入框 按鈕位置
+
+//攔截 按鈕點擊
+
+//防呆  輸入的字 = 輸入框 防呆處理 大小寫 修剪空白
+
+//判斷 1.啥都沒打 直接渲染 下班
+//    2.打了 和大棧板的品名比對(轉換大小寫)  包含(輸入的字)
+//    3.客人亂輸入 找不到東西(改寫在渲染主商品機器人那邊)
+//渲染 清空輸入框
+
+//既然搜尋與篩選的兩大任務都解開了，我們這套系統其實還有一個「極致絲滑」的升級空間。你想不想知道平常 Google 搜尋是怎麼做到「一邊打字，完全不用按搜尋按鈕，下面就一邊跑出結果」的呢？
+
+const searchInput = document.querySelector("#search-input");
+const searchBtn = document.querySelector("#search-btn");
+
+searchBtn.addEventListener("click", function() {
+  
+  let keyword = searchInput.value.toLowerCase().trim();
+  
+  if (keyword === ""){
+    renderShop(product);
+    return;
+  }
+
+  let searchedProducts = product.filter(function(item) {
+    return item.name.toLowerCase().includes(keyword);
+  });
+
+  renderShop(searchedProducts);
+  
+  searchInput.value = "";
+  //如果 要改綁input監聽，這句清空輸入框要刪掉
+  //原本是客人click搜尋後，會自動清除
+  //綁input 這句沒刪除，客人永遠只能打出一個字，因為打一個字 會觸發自動刪除
+
+});
+
+// ==========================================
+// ⌨️ 加碼任務：按 Enter 鍵也能搜尋！
+// ==========================================
+//攔截  監聽
+//判斷 是否點到Enter
+//執行  命令機器人去點按鈕
+
+
+
+searchInput.addEventListener("keyup",function(e) {
+  
+  if (e.key === "Enter") {
+    
+    searchBtn.click();
   }
 });
