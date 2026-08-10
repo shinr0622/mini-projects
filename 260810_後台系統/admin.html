@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <title>小柴日貨 - 進銷存後台</title>
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body>
+    <h1>小柴日貨 - 進銷存後台</h1>
+
+    <!--數據儀錶板(reduce 魔法用)-->
+    <div id="dashboard">
+      <h3>📊 總資產盤點</h3>
+      <p>
+        目前倉庫總成本:<span
+          id="total-cost"
+          style="color: #ff6b6b; font-weight: bold"
+          >計算中...</span
+        >
+      </p>
+    </div>
+
+    <!--控制台(sort 魔法用)-->
+    <div id="control-panel">
+      <button id="sort-price-btn">💰按台幣售價排序 (低到高)</button>
+      <button id="sort-stock-btn">⚠️ 按庫存警報排序 (少到多)</button>
+    </div>
+
+    <!--商品資料表(map 魔法用)-->
+    <table id="admin-table">
+      <thead>
+        <tr>
+          <th>圖片</th>
+          <th>商品名稱</th>
+          <th>分類</th>
+          <th>庫存</th>
+          <th>日幣成本 (¥)</th>
+          <th>台幣售價 (NT$)</th>
+        </tr>
+      </thead>
+
+      <tbody id="table-body">
+        <!-- 萬能堆高機等一下把資料印在這裡-->
+      </tbody>
+    </table>
+
+    <script src="admin.js"></script>
+  </body>
+</html>
