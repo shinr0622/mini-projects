@@ -1,0 +1,59 @@
+body {
+    font-family: sans-serif;  /*無襯線體*/
+    background-color: rgb(248, 241, 244);
+    padding: 20px;
+    color:#333;
+}
+
+h1{
+    text-align: center;
+    color: #2b659f;
+}
+
+#dashboard,#control-panel {
+    background-color:  rgb(255, 252, 249);
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+button {
+    padding: 10px 15px;
+    margin-right: 10px;
+    cursor: pointer;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;   
+}
+
+button:hover{
+background-color: #3d99f5;
+}
+
+table {
+    width:100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd; 
+    text-align: left;
+}
+
+th {
+  background-color: #e9ecef;
+  color: #333;
+}
+
+.admin-img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  border-radius: 4px;
+}
