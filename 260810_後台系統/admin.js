@@ -107,7 +107,7 @@ const product = [
 
 // 準備實作魔法區域
 // ==========================================
-// 1. .map() 映射魔法：把日幣成本轉換成台幣定價
+// 1. .map() 映射魔法(加工製造機)：把日幣成本轉換成台幣定價
 // 2. 萬能堆高機：把變身後的陣列印成表格
 // 3. .sort() 排序魔法
 // 4. .reduce() 化簡魔法
@@ -225,3 +225,27 @@ sortStockBtn.addEventListener("click",function() {
   });
   renderAdmin(sortedByStock);
 });
+
+
+//==================================
+//reduce() 化簡 歸納    目的:算出庫存總資金
+
+//讀取        大棧板  左手帳本 右手當下的物品
+//算錢邏輯     當筆總額=單價*庫存
+//傳遞累加   總額累加+當筆總額
+//渲染 貼上  toLocaleString()千分位逗號
+
+// 語法結構： 棧板.reduce( 會計的做事步驟 , 給會計的初始資金 )
+
+const totalAssets = pricedProducts.reduce(function(total,item) {
+  let itemTotalValue = item.price * item.stock;
+    return total+itemTotalValue;
+}, 0 );
+
+//0要記得寫 初始值，代表會計一開始的記帳本total是 0 元，不寫會變亂碼 
+//機器人會跑去拿「第一個商品物件」名稱當作初始帳本
+
+console.log("💰 基礎挑戰成功 ! 全倉庫總成本:NT$",totalAssets);
+
+const totalCostElement = document.querySelector("#total-cost");
+totalCostElement.textContent = `NT$${totalAssets.toLocaleString()}`;
