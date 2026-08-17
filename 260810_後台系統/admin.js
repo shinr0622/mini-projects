@@ -157,7 +157,7 @@ renderAdmin(pricedProducts);
 //注意上面data陣列不寫死 最後 要拍一下 網頁載入啟動
 
 //================================================================
-//如何從html修改陣列數字?
+//目的:修改html數字 結算要跟著變動
 
 //抓取 位置
 //攔截 監聽列元素 change 事後結算
@@ -192,13 +192,24 @@ tableBody.addEventListener("change", function (e) {
       }
     localStorage.setItem("sibaAdmin", JSON.stringify(pricedProducts));
     renderAdmin(pricedProducts);
+    //改日幣 ➔ 更新 costYen ➔ 重新算單價 ➔ 存檔渲染 ➔ 重新算總資產 (金額變了！)
+
+    updataTotalAssets();
+    //改庫存 ➔ 更新 stock ➔ 略過算單價 ➔ 存檔渲染 ➔ 重新算總資產 (金額變了！)
     //避免浪費效能 放在有修改 才儲存 渲染貼上
     }
   }
 });
+//renderAdmin(pricedProducts)：負責刷新「畫面的表格」。當你修改日幣時，單品台幣售價（price）變了，這支程式會負責把全新的價目表重新印到畫面上。
+
+//updataTotalAssets()：負責刷新「總資產」。因為 總資產 = 庫存 × 單價，所以無論你是改庫存還是改日幣，總金額都會受到牽連，這時候就必須呼叫它重新結算！
 
 
-//==================================
+
+
+
+
+//==================================================================
 //sort 排序 價格與庫存
 
 //抓取 價格 庫存位置
@@ -237,9 +248,9 @@ sortStockBtn.addEventListener("click",function() {
 
 // 語法結構： 棧板.reduce( 會計的做事步驟 , 給會計的初始資金 )
 
+function updataTotalAssets() {
 const totalAssets = pricedProducts.reduce(function(total,item) {
-  let itemTotalValue = item.price * item.stock;
-    return total+itemTotalValue;
+  return total + (item.price * item.stock);
 }, 0 );
 
 //0要記得寫 初始值，代表會計一開始的記帳本total是 0 元，不寫會變亂碼 
@@ -249,3 +260,6 @@ console.log("💰 基礎挑戰成功 ! 全倉庫總成本:NT$",totalAssets);
 
 const totalCostElement = document.querySelector("#total-cost");
 totalCostElement.textContent = `NT$${totalAssets.toLocaleString()}`;
+
+}
+updataTotalAssets();
