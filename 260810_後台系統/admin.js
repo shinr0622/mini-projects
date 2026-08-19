@@ -197,6 +197,9 @@ tableBody.addEventListener("change", function (e) {
     updataTotalAssets();
     //改庫存 ➔ 更新 stock ➔ 略過算單價 ➔ 存檔渲染 ➔ 重新算總資產 (金額變了！)
     //避免浪費效能 放在有修改 才儲存 渲染貼上
+
+    updataCategoryStats();
+    //分類報表用 這樣修改數字 分類報表才會跟著改
     }
   }
 });
@@ -263,3 +266,34 @@ totalCostElement.textContent = `NT$${totalAssets.toLocaleString()}`;
 
 }
 updataTotalAssets();
+
+
+/// ==========================================
+//  .reduce() 魔王題：分門別類統計報表
+//目的:按照老闆需求 分出各個商品類別的 庫存和總額
+
+//組一台機器人
+//讀取 到大棧板 左拿大帳本 右拿商品  記得最後方 要寫{}空物件 避免機器人亂拿
+//檢查分類  沒有的話 建立分類歸0小帳本  給機器人 放進{}空物件裡
+//算錢 累加金額 要記得遞交
+//渲染  記得拍一下
+
+function updataCategoryStats() {
+  const categoryStats = pricedProducts.reduce(function(total,item) {
+
+  if(!total[item.category]){
+    total[item.category] = { stockCount: 0, assetValue: 0 };
+  }
+  
+  let itemTotalValue = item.price * item.stock;
+
+  total[item.category].stockCount += item.stock;
+  total[item.category].assetValue += itemTotalValue;
+  return total;
+
+  }, {});
+
+  console.log("📊 魔王挑戰成功！各分類營運報表：", categoryStats);
+};
+
+updataCategoryStats();
