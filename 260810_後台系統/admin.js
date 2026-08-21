@@ -190,27 +190,22 @@ tableBody.addEventListener("change", function (e) {
           `重新計算！${targetItem.name} 的新台幣售價為: NT$ ${targetItem.price}`,
         );
       }
-    localStorage.setItem("sibaAdmin", JSON.stringify(pricedProducts));
-    renderAdmin(pricedProducts);
-    //改日幣 ➔ 更新 costYen ➔ 重新算單價 ➔ 存檔渲染 ➔ 重新算總資產 (金額變了！)
+      localStorage.setItem("sibaAdmin", JSON.stringify(pricedProducts));
+      renderAdmin(pricedProducts);
+      //改日幣 ➔ 更新 costYen ➔ 重新算單價 ➔ 存檔渲染 ➔ 重新算總資產 (金額變了！)
 
-    updataTotalAssets();
-    //改庫存 ➔ 更新 stock ➔ 略過算單價 ➔ 存檔渲染 ➔ 重新算總資產 (金額變了！)
-    //避免浪費效能 放在有修改 才儲存 渲染貼上
+      updataTotalAssets();
+      //改庫存 ➔ 更新 stock ➔ 略過算單價 ➔ 存檔渲染 ➔ 重新算總資產 (金額變了！)
+      //避免浪費效能 放在有修改 才儲存 渲染貼上
 
-    updataCategoryStats();
-    //分類報表用 這樣修改數字 分類報表才會跟著改
+      updataCategoryStats();
+      //分類報表用 這樣修改數字 分類報表才會跟著改
     }
   }
 });
 //renderAdmin(pricedProducts)：負責刷新「畫面的表格」。當你修改日幣時，單品台幣售價（price）變了，這支程式會負責把全新的價目表重新印到畫面上。
 
 //updataTotalAssets()：負責刷新「總資產」。因為 總資產 = 庫存 × 單價，所以無論你是改庫存還是改日幣，總金額都會受到牽連，這時候就必須呼叫它重新結算！
-
-
-
-
-
 
 //==================================================================
 //sort 排序 價格與庫存
@@ -225,21 +220,20 @@ tableBody.addEventListener("change", function (e) {
 const sortPriceBtn = document.querySelector("#sort-price-btn");
 const sortStockBtn = document.querySelector("#sort-stock-btn");
 
-sortPriceBtn.addEventListener("click",function() {
-  let sortedByPrice = [...pricedProducts].sort(function(a,b){
-    return a.price-b.price;
+sortPriceBtn.addEventListener("click", function () {
+  let sortedByPrice = [...pricedProducts].sort(function (a, b) {
+    return a.price - b.price;
     //a代表前面，b代表後面的商品，a - b 就是「從小排到大 (低到高)」
   });
-  renderAdmin(sortedByPrice);//渲染的新陣列 貼上去
+  renderAdmin(sortedByPrice); //渲染的新陣列 貼上去
 });
 
-sortStockBtn.addEventListener("click",function() {
-  let sortedByStock = [...pricedProducts].sort(function(a,b) {
-    return a.stock-b.stock;
+sortStockBtn.addEventListener("click", function () {
+  let sortedByStock = [...pricedProducts].sort(function (a, b) {
+    return a.stock - b.stock;
   });
   renderAdmin(sortedByStock);
 });
-
 
 //==================================
 //reduce() 化簡 歸納    目的:算出庫存總資金
@@ -250,22 +244,24 @@ sortStockBtn.addEventListener("click",function() {
 //渲染 貼上  toLocaleString()千分位逗號
 
 // 語法結構： 棧板.reduce( 會計的做事步驟 , 給會計的初始資金 )
+  //0要記得寫 初始值，代表會計一開始的記帳本total是 0 元，不寫會變亂碼
+  //機器人會跑去拿「第一個商品物件」名稱當作初始帳本
 
 function updataTotalAssets() {
-const totalAssets = pricedProducts.reduce(function(total,item) {
-  return total + (item.price * item.stock);
-}, 0 );
+  const totalAssets = pricedProducts.reduce(function (total, item) {
+    return total + (item.price * item.stock);
+  }, 0);
 
-//0要記得寫 初始值，代表會計一開始的記帳本total是 0 元，不寫會變亂碼 
-//機器人會跑去拿「第一個商品物件」名稱當作初始帳本
 
-console.log("💰 基礎挑戰成功 ! 全倉庫總成本:NT$",totalAssets);
+  console.log("💰 基礎挑戰成功 ! 全倉庫總成本:NT$", totalAssets);
 
-const totalCostElement = document.querySelector("#total-cost");
-totalCostElement.textContent = `NT$${totalAssets.toLocaleString()}`;
-
+  const totalCostElement = document.querySelector("#total-cost");
+  totalCostElement.textContent = `NT$${totalAssets.toLocaleString()}`;
 }
 updataTotalAssets();
+
+
+
 
 
 /// ==========================================
@@ -279,21 +275,44 @@ updataTotalAssets();
 //渲染  記得拍一下
 
 function updataCategoryStats() {
-  const categoryStats = pricedProducts.reduce(function(total,item) {
+  const categoryStats = pricedProducts.reduce(function (total, item) {
+    if (!total[item.category]) {
+      total[item.category] = { stockCount: 0, assetValue: 0 };
+    }
 
-  if(!total[item.category]){
-    total[item.category] = { stockCount: 0, assetValue: 0 };
-  }
-  
-  let itemTotalValue = item.price * item.stock;
+    let itemTotalValue = item.price * item.stock;
 
-  total[item.category].stockCount += item.stock;
-  total[item.category].assetValue += itemTotalValue;
-  return total;
-
+    total[item.category].stockCount += item.stock;
+    total[item.category].assetValue += itemTotalValue;
+    return total;
   }, {});
 
-  console.log("📊 魔王挑戰成功！各分類營運報表：", categoryStats);
-};
+  console.log("📊 挑戰成功！各分類營運報表：", categoryStats);
 
+  // ==========================================
+  //將分類報表 渲染到畫面上
+
+  //抓取 報表位置
+  //清空 舊畫面
+  //抄寫讀取   categoryStats報表 是物件，要轉換成  陣列  才能使用forEach
+  //        使用Object.keys()  把  報表的 標籤名字drink, snack, lifestyle抄寫出來
+  //       做成["drink","snack", "lifestyle"]陣列清單，再用forEach 去讀單字
+
+  //貼紙條   看著機器人讀的標籤[] 拉開抽屜 ，對著庫存與總額 貼上stat 暫時標籤
+  //放進html 渲染
+
+  const reportContainer = document.querySelector("#category-report");
+  reportContainer.innerHTML = "";
+
+  Object.keys(categoryStats).forEach(function (categoryName) {
+    let stat = categoryStats[categoryName];
+
+    reportContainer.innerHTML += `
+      <p style ="margin: 5px 0; font-size: 15px; color: #555;">
+      🏷️ <strong>${categoryName}</strong> 區:
+      庫存${stat.stockCount}件 |
+      總額 <span style ="color:#e36e6e; font-weight: bold;">NT$${stat.assetValue.toLocaleString()}</span></p>
+    `;
+  });
+}
 updataCategoryStats();
