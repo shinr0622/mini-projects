@@ -112,24 +112,65 @@ const product = [
 // 3. .sort() 排序魔法
 // 4. .reduce() 化簡魔法
 
-const exchangeRate = 0.22;
+//const exchangeRate = 0.22;
+
+//加碼:新增 抓取即時日幣匯率 API任務
+//注意:避免js機器人不等船回來 直接算定價 先把下面所有的渲染機器人 放進.then() 等回來再跑
+//監聽和按鈕機器人是被動觸發 不用動
+
+//因為區塊作用域 裡面不能寫let  額外在外面寫一個let pricedProducts = [];
+//讓按鈕 監聽機器人可以拿貨   不然在肚子裡面 拿不到
+
+
+//請求 跨海出發
+//等待回應  json()分批遞交卸貨
+//接著處理  讀取收到的資料 給匯率一個便條標籤
+//map 加工 把動態匯率 套進陣列裡面(外面要放個空棧板 這樣外面的機器人才找的到貨)
+//原本的渲染機器人 可以出動 開跑
+//防呆抓取錯誤  避免連線失敗 整排報錯
+
+
+//這裡的dynamicExchangeRate = 0 是準備一張空白的匯率便條紙 把.then肚子裡面的得到匯率 抄過來
+//讓 change監聽修改機器人 也能使用
+let pricedProducts = [];
+let dynamicExchangeRate = 0;  
 const profitMargin = 1.5;
 
-const pricedProducts = product.map(function (item) {
-  return {
-    id: item.id,
-    name: item.name,
-    stock: item.stock,
-    category: item.category,
-    costYen: item.costYen,
-    img: item.img,
-    //日幣*匯率*利潤倍數
-    //Math.round去小數點
-    price: Math.round(item.costYen * exchangeRate * profitMargin),
-  };
-});
+fetch("https://api.exchangerate-api.com/v4/latest/JPY")
+  .then(function (response) {
+    return response.json();
+  })
+  .then(function (data) {
+    dynamicExchangeRate = data.rates.TWD;
+    console.log(`🏦 銀行最新連線匯率: 1 日幣 = ${dynamicExchangeRate} 台幣`);
+
+    pricedProducts = product.map(function (item) {
+      return {
+        id: item.id,
+        name: item.name,
+        stock: item.stock,
+        category: item.category,
+        costYen: item.costYen,
+        img: item.img,
+        //日幣*匯率*利潤倍數   Math.round去小數點
+        
+        price: Math.round(item.costYen * dynamicExchangeRate * profitMargin),
+      };
+    });
+   
+    renderAdmin(pricedProducts);
+    updataTotalAssets();
+    updataCategoryStats();
+
+  })
+
 
 console.log("加上台幣售價後的新棧板:", pricedProducts);
+
+// 原本的事件監聽器 (按鈕、修改數字) 全部維持原樣「留在外面」不用動！
+// ==========================================
+// tableBody.addEventListener("change", ...)
+// sortPriceBtn.addEventListener("click", ...)
 
 function renderAdmin(data) {
   const tableBody = document.querySelector("#table-body");
@@ -153,11 +194,11 @@ function renderAdmin(data) {
       `;
   });
 }
-renderAdmin(pricedProducts);
-//注意上面data陣列不寫死 最後 要拍一下 網頁載入啟動
+//renderAdmin(pricedProducts);
+//要拍一下 網頁載入啟動  因為非同步 回來要時間 改放在fetch內執行 避免先跑 報錯
 
 //================================================================
-//目的:修改html數字 結算要跟著變動
+//目的:修改html數字 結算要跟著變動  監聽修改機器人
 
 //抓取 位置
 //攔截 監聽列元素 change 事後結算
@@ -184,7 +225,7 @@ tableBody.addEventListener("change", function (e) {
 
       if (fieldName === "costYen") {
         targetItem.price = Math.round(
-          targetItem.costYen * exchangeRate * profitMargin,
+          targetItem.costYen * dynamicExchangeRate * profitMargin,
         );
         console.log(
           `重新計算！${targetItem.name} 的新台幣售價為: NT$ ${targetItem.price}`,
@@ -244,25 +285,21 @@ sortStockBtn.addEventListener("click", function () {
 //渲染 貼上  toLocaleString()千分位逗號
 
 // 語法結構： 棧板.reduce( 會計的做事步驟 , 給會計的初始資金 )
-  //0要記得寫 初始值，代表會計一開始的記帳本total是 0 元，不寫會變亂碼
-  //機器人會跑去拿「第一個商品物件」名稱當作初始帳本
+//0要記得寫 初始值，代表會計一開始的記帳本total是 0 元，不寫會變亂碼
+//機器人會跑去拿「第一個商品物件」名稱當作初始帳本
 
 function updataTotalAssets() {
   const totalAssets = pricedProducts.reduce(function (total, item) {
-    return total + (item.price * item.stock);
+    return total + item.price * item.stock;
   }, 0);
-
 
   console.log("💰 基礎挑戰成功 ! 全倉庫總成本:NT$", totalAssets);
 
   const totalCostElement = document.querySelector("#total-cost");
   totalCostElement.textContent = `NT$${totalAssets.toLocaleString()}`;
 }
-updataTotalAssets();
-
-
-
-
+//updataTotalAssets();
+//因為非同步 回來要時間 改放在fetch內執行 避免先跑 報錯
 
 /// ==========================================
 //  .reduce() 魔王題：分門別類統計報表
@@ -270,7 +307,7 @@ updataTotalAssets();
 
 //組一台機器人
 //讀取 到大棧板 左拿大帳本 右拿商品  記得最後方 要寫{}空物件 避免機器人亂拿
-//分類  寫一個要放進{}空物件 的分類歸0小帳本  給機器人 
+//分類  寫一個要放進{}空物件 的分類歸0小帳本  給機器人
 //算錢 累加金額 要記得遞交
 //渲染  記得拍一下
 
@@ -315,4 +352,5 @@ function updataCategoryStats() {
     `;
   });
 }
-updataCategoryStats();
+//updataCategoryStats();
+//因為非同步 回來要時間 改放在fetch內執行 避免先跑 報錯
