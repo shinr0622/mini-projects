@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>莉莉姆的動漫圖書館</title>
+  </head>
+  <body
+    style="background-color: #f4f4f9; font-family: sans-serif; padding: 20px"
+  >
+    <h1 style="text-align: center; color: #6b4c9a">📖 動漫檢索圖書館</h1>
+
+    <!--🔍 搜尋控制台-->
+    <div style="text-align: center; margin-bottom: 30px">
+      <input
+        type="text"
+        id="search-input"
+        placeholder="輸入動漫名稱 (如: Naruto)"
+        style="
+          padding: 10px;
+          width: 250px;
+          border-radius: 5px;
+          border: 1px solid #ccc;
+        "
+      />
+      <button
+        id="search-btn"
+        style="
+          padding: 10px 20px;
+          background-color: #6b4c9a;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+        "
+      >
+        搜尋
+      </button>
+    </div>
+
+    <!--🖼️ 海報展示牆 (現在是空的)-->
+    <div
+      id="anime-container"
+      style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px"
+    >
+      <p style="color: #999">目前圖書館空空如也，快試著搜尋看看吧！</p>
+    </div>
+
+    <script src="anime.js"></script>
+  </body>
+</html>
